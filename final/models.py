@@ -3,40 +3,14 @@ from flask_login import UserMixin
 from .db_config import mongo, db
 from .log import login_manager
 
-# Mongo Implementation
+class Exercise:
+	def __init__(self, name):
+		self.name = name
 
-#class User:
-#	def __init__(self, email, name):
-#		self.email = email
-#		self.name = name
-#
-#	@staticmethod
-#	def is_authenticated():
-#		return True
-#
-#	@staticmethod
-#	def is_active():
-#		return True
-#
-#	@staticmethod
-#	def is_anonymous():
-#		return False
-#
-#	def get_id(self):
-#		return self.email
-#
-#	def get_name(self):
-#		return self.name
-#
-#	@login_manager.user_loader
-#	def load_user(email):
-#		u = mongo.db.users.find_one({"email": email})
-#		if not u:
-#			return None
-#		return User(email=u['email'], name=u['name'])
+class Routine:
+	def __init__(self, name):
+		self.name = name
 
-
-# SQL Implementation
 class User(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	email = db.Column(db.String(100), unique=True, nullable=False)
@@ -55,14 +29,5 @@ class Role(db.Model):
 
 class UserRoles(db.Model):
 	__tablename__ = 'user_roles'
-	id = db.Column(db.Integer(), primary_key=True)
-	user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'))
+	user_id = db.Column(db.Integer(), db.ForeignKey('user.id', ondelete='CASCADE'), primary_key=True)
 	role_id = db.Column(db.Integer(), db.ForeignKey('role.id', ondelete='CASCADE'))
-
-
-
-
-
-
-
-

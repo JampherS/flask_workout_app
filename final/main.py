@@ -11,5 +11,3 @@ def index():
 @login_required
 def profile():
 	return render_template('profile.html', name=current_user.name)
-
-
