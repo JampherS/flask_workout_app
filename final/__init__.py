@@ -8,7 +8,7 @@ def create_app():
 	app = Flask(__name__)
 
 	app.config['SECRET_KEY'] = 'supersecretkey'
-	app.config['MONGO_URI'] = 'mongodb://localhost:27017/test'
+	app.config['MONGO_URI'] = 'mongodb://localhost:27017/workoutManager'
 	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
 	workoutsDB.init_app(app)

@@ -1,4 +1,3 @@
-from flask_login import LoginManager, current_user, login_user
 from flask_login import UserMixin
 from .db_config import workoutsDB, usersDB
 from .log import login_manager
@@ -8,8 +7,9 @@ class Exercise:
 		self.name = name
 
 class Routine:
-	def __init__(self, name):
+	def __init__(self, name, exercises):
 		self.name = name
+		self.exercises = exercises
 
 class User(UserMixin, usersDB.Model):
 	id = usersDB.Column(usersDB.Integer, primary_key=True)
