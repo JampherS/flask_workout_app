@@ -21,7 +21,7 @@ def create_app():
 		db.session.add(Role(id=0, name='admin'))
 		db.session.add(Role(id=1, name='user'))
 
-		admin = User(email='mkoszy@cooper.edu', name='Mark Koszykowski',
+		admin = User(email='mkoszy@cooper.edu', name='Mark',
 				 password=generate_password_hash("password", method='sha256'))
 		admin.roles.append(Role.query.filter_by(name='admin').first())
 
