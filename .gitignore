@@ -1,3 +1,6 @@
 /tracker_app
 final/__pycache__/
 final/db.sqlite
+final/sqlite3.exe
+final/sqldiff.exe
+final/sqlite3_analyzer.exe
