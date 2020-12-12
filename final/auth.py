@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
-from .db_config import mongo, db
+from .db_config import workoutsDB, usersDB
 from .models import User, Role
 
 auth = Blueprint('auth', __name__)
@@ -45,8 +45,8 @@ def signup_post():
 	new_user = User(email=email, name=name, password=hashed_pass)
 	assigned_role = Role.query.filter_by(name='user').first()
 	new_user.roles.append(assigned_role)
-	db.session.add(new_user)
-	db.session.commit()
+	usersDB.session.add(new_user)
+	usersDB.session.commit()
 
 	return redirect(url_for('auth.login'))
 

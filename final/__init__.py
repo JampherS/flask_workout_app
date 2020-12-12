@@ -1,5 +1,5 @@
 from flask import Flask
-from .db_config import mongo, db
+from .db_config import workoutsDB, usersDB
 from .log import login_manager
 from .models import User, Role
 from werkzeug.security import generate_password_hash
@@ -11,22 +11,22 @@ def create_app():
 	app.config['MONGO_URI'] = 'mongodb://localhost:27017/test'
 	app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 
-	mongo.init_app(app)
-	db.init_app(app)
+	workoutsDB.init_app(app)
+	usersDB.init_app(app)
 	login_manager.init_app(app)
 
 	with app.app_context():
-		db.create_all()
+		usersDB.create_all()
 
-		db.session.add(Role(id=0, name='admin'))
-		db.session.add(Role(id=1, name='user'))
+		usersDB.session.add(Role(id=0, name='admin'))
+		usersDB.session.add(Role(id=1, name='user'))
 
 		admin = User(email='mkoszy@cooper.edu', name='Mark',
 				 password=generate_password_hash("password", method='sha256'))
 		admin.roles.append(Role.query.filter_by(name='admin').first())
 
-		db.session.add(admin)
-		db.session.commit()
+		usersDB.session.add(admin)
+		usersDB.session.commit()
 
 
 	from .auth import auth as auth_blueprint
