@@ -17,7 +17,7 @@ class User(UserMixin, usersDB.Model):
 	name = usersDB.Column(usersDB.String(100))
 	password = usersDB.Column(usersDB.String(100))
 
-	roles = usersDB.relationship('Role', secondary='user_roles', backref=db.backref('users', lazy='dynamic'))
+	roles = usersDB.relationship('Role', secondary='user_roles', backref=usersDB.backref('users', lazy='dynamic'))
 
 	@login_manager.user_loader
 	def load_user(user_id):

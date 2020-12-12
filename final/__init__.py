@@ -17,16 +17,16 @@ def create_app():
 
 	with app.app_context():
 		usersDB.create_all()
+		if not Role.query.filter_by(id=0):
+			usersDB.session.add(Role(id=0, name='admin'))
+			usersDB.session.add(Role(id=1, name='user'))
 
-		usersDB.session.add(Role(id=0, name='admin'))
-		usersDB.session.add(Role(id=1, name='user'))
-
-		admin = User(email='mkoszy@cooper.edu', name='Mark',
+			admin = User(email='mkoszy@cooper.edu', name='Mark',
 				 password=generate_password_hash("password", method='sha256'))
-		admin.roles.append(Role.query.filter_by(name='admin').first())
+			admin.roles.append(Role.query.filter_by(name='admin').first())
 
-		usersDB.session.add(admin)
-		usersDB.session.commit()
+			usersDB.session.add(admin)
+			usersDB.session.commit()
 
 
 	from .auth import auth as auth_blueprint
