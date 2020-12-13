@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
 from .db_config import usersDB, workoutsDB
-from .models import User, Role
+from .models import User, Role, UserRoles
 
 auth = Blueprint('auth', __name__)
 
@@ -56,3 +56,24 @@ def signup_post():
 def logout():
 	logout_user()
 	return redirect(url_for('main.index'))
+
+@auth.route('/addadmin', methods=['POST'])
+@login_required
+def add_admin():
+	email = request.form.get('new_admin') if request.form.get('new_admin') else None
+	if not email:
+		flash("Please enter a valid email")
+		return redirect(url_for('main.profile'))
+
+	user = User.query.filter_by(email=email).first()
+
+	if not user:
+		flash("Please enter an email account that exists")
+		return redirect(url_for('main.profile'))
+
+	userrole = UserRoles.query.filter_by(user_id=user.id).first()
+	userrole.role_id = 0
+	usersDB.session.commit()
+
+	flash(F"User {email} switched to admin")
+	return redirect(url_for('main.profile'))

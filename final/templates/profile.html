@@ -12,6 +12,20 @@
         {% endif %}
     </h2>
 
+    {% if admin %}
+        <form method="POST" action="/addadmin">
+            <div class="field">
+                <div class="control">
+                    Want to make some one else admin? Enter their email below!
+                </div>
+                <div class="control">
+                    <input class="input" type="new_admin" name="new_admin" placeholder="New Admin Email" autofocus="">
+                    <button class="button"> Add </button>
+                </div>
+            </div>
+        </form>
+    {% endif %}
+
     {% with messages = get_flashed_messages() %}
 	    {% if messages %}
     		<div class="notification is-danger">
@@ -25,7 +39,7 @@
             <div class="control">
                 Didn't workout today? That's okay, keep track of your weight here!
                 <input class="input" type="weight" name="weight" placeholder="Today's Weight" autofocus="">
-                <button class="button"> Track! </button>
+                <button class="button"> Track </button>
             </div>
         </div>
     </form>
