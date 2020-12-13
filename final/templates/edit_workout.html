@@ -12,7 +12,7 @@
     {% endwith %}
 
     {% for exercise in exercises %}
-        <form method="POST" action="{{ url_for('work.append', workout_name=workout_name, exercise_name=exercise) }}">
+        <form method="POST" action="/append/{{ workout_name }}/{{ exercise['name'] }}">
             <div class="field">
                 <div class="control">
                     {{ exercise['name'].title() }}

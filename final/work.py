@@ -54,7 +54,7 @@ def create_post():
         flash('Workout already exists')
         return redirect(url_for('work.create'))
 
-    workoutsDB.db.workouts.insert_one({"name": workout_name, "exercises": []})
+    workoutsDB.db.workouts.insert_one({"name": workout_name})
     return redirect(url_for('work.append', workout_name=workout_name))
 
 @work.route('/append/<workout_name>')
@@ -63,7 +63,7 @@ def append(workout_name):
     exercises = workoutsDB.db.exercises.find({}).sort("name")
     return render_template("edit_workout.html", workout_name=workout_name, exercises=exercises)
 
-@work.route('/append/<workout_name><exercise_name>', methods=['POST'])
+@work.route('/append/<workout_name>/<exercise_name>', methods=['POST'])
 @login_required
 def append_post(workout_name, exercise_name):
     order = int(request.form.get('order')) - 1 if request.form.get('order') else None
@@ -71,10 +71,15 @@ def append_post(workout_name, exercise_name):
     reps = int(request.form.get('reps')) if request.form.get('reps') else None
     sets = int(request.form.get('sets')) if request.form.get('sets') else None
     time = float(request.form.get('time')) if request.form.get('time') else None
-
     workouts = workoutsDB.db.workouts.aggregate([
-        {"$match" : {"name": workout_name}},
-        {"$project": {"length": {"$size": "$exercises"}}}
+        {"$match": {"name": workout_name}},
+        {"$project":
+             {"length":
+                  {"$size":
+                       {"$ifNull" : ["$exercises", []]}
+                   }
+              }
+        }
     ])
     length = 0
     for workout in workouts:
@@ -88,19 +93,18 @@ def append_post(workout_name, exercise_name):
         return redirect(url_for('work.append', workout_name=workout_name))
 
     workoutsDB.db.workouts.update({"name": workout_name},
-        {"$push":
-            {"exercises":
-                {"$each": [{
-                    "name": exercise_name,
-                    "weight": weight,
-                    "reps": reps,
-                    "sets": sets,
-                    "time": time,
-                }],
-                "$position": order}
-            }
-        })
-
+                                  {"$push":
+                                      {"exercises":
+                                          {"$each": [{
+                                              "name": exercise_name,
+                                              "weight": weight,
+                                              "reps": reps,
+                                              "sets": sets,
+                                              "time": time
+                                          }],
+                                              "$position": order}
+                                      }
+                                  })
     return redirect(url_for('work.append', workout_name=workout_name))
 
 @work.route('/remove/<workout>', methods=['POST'])
