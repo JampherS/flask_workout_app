@@ -1,12 +1,47 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  <font size="+5"> Welcome, {{name}}! </font>
-</h1>
+<div class="column is-4 is-offset-4">
+    <h1 class="title">
+        <font size="+5"> Welcome, {{name}}! </font>
+    </h1>
 
-{% if admin %}
-  Hey, you're an admin!
-{% endif %}
+    {% if admin %}
+        Hey, you're an admin!
+    {% endif %}
 
+    {% with messages = get_flashed_messages() %}
+	    {% if messages %}
+    		<div class="notification is-danger">
+        		{{ messages[0] }}
+    		</div>
+	    {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="/profile">
+        Didn't workout today? That's okay, keep track of your weight here!
+        <input class="input" type="weight" name="weight" placeholder="Today's Weight" autofocus="">
+        <button class="button"> Track! </button>
+    </form>
+
+    {% for day in hist %}
+    <div class="field">
+        <div class=control">
+            <font size="+3"> Date: {{ day['date'] }} </font>
+        </div>
+
+        {% if day['weight'] %}
+        <div class="control">
+            Weight: {{ day['weight'] }}
+        </div>
+        {% endif %}
+
+        {% if day['weight'] %}
+        <div class="control">
+            Workout: {{ day['workout'].title() }}
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
 {% endblock %}

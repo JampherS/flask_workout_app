@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
 from .db_config import workoutsDB
@@ -28,10 +29,10 @@ def add_post():
     workoutsDB.db.exercises.insert_one({"name": exercise_name})
     return redirect(url_for('work.add'))
 
-@work.route('/delete/<exercise>', methods=['POST'])
+@work.route('/delete/<exercise_name>', methods=['POST'])
 @login_required
-def delete(exercise):
-    workoutsDB.db.exercises.delete_one({"name": exercise})
+def delete(exercise_name):
+    workoutsDB.db.exercises.delete_one({"name": exercise_name})
     return redirect(url_for('work.add'))
 
 @work.route('/create')
@@ -66,11 +67,15 @@ def append(workout_name):
 @work.route('/append/<workout_name>/<exercise_name>', methods=['POST'])
 @login_required
 def append_post(workout_name, exercise_name):
-    order = int(request.form.get('order')) - 1 if request.form.get('order') else None
-    weight = float(request.form.get('weight')) if request.form.get('weight') else None
-    reps = int(request.form.get('reps')) if request.form.get('reps') else None
-    sets = int(request.form.get('sets')) if request.form.get('sets') else None
-    time = float(request.form.get('time')) if request.form.get('time') else None
+    try:
+        order = int(request.form.get('order')) - 1 if request.form.get('order') else None
+        weight = float(request.form.get('weight')) if request.form.get('weight') else None
+        reps = int(request.form.get('reps')) if request.form.get('reps') else None
+        sets = int(request.form.get('sets')) if request.form.get('sets') else None
+        time = float(request.form.get('time')) if request.form.get('time') else None
+    except:
+        flash("Please enter (a) valid response(s)")
+
     workouts = workoutsDB.db.workouts.aggregate([
         {"$match": {"name": workout_name}},
         {"$project":
@@ -107,10 +112,10 @@ def append_post(workout_name, exercise_name):
                                   })
     return redirect(url_for('work.append', workout_name=workout_name))
 
-@work.route('/remove/<workout>', methods=['POST'])
+@work.route('/remove/<workout_name>', methods=['POST'])
 @login_required
-def remove(workout):
-    workoutsDB.db.workouts.delete_one({"name": workout})
+def remove(workout_name):
+    workoutsDB.db.workouts.delete_one({"name": workout_name})
     return redirect(url_for('work.create'))
 
 @work.route('/workouts')
@@ -118,3 +123,46 @@ def remove(workout):
 def workouts():
     workouts = workoutsDB.db.workouts.find({}).sort("name")
     return render_template('workout.html', workouts=workouts, admin=is_admin(current_user.id))
+
+@work.route('/track/<workout_name>', methods=['POST'])
+@login_required
+def track(workout_name):
+    try:
+        weight = int(request.form.get('weight')) if request.form.get('weight') else None
+    except:
+        flash("Please enter a valid response")
+        return redirect(url_for('work.workouts'))
+
+    entry = workoutsDB.db.tracker.find_one({"_id": current_user.id,
+                                            "history.date": datetime.today().strftime('%Y-%m-%d')})
+
+
+    if entry:
+        flash("Can only log one weigh-in/workout per day")
+        return redirect(url_for('work.workouts'))
+
+    if weight is not None and weight > 0:
+        workoutsDB.db.tracker.update({"_id": current_user.id},
+                                    {"$push":
+                                         {"history":
+                                             {"$each": [{
+                                             "date": datetime.today().strftime('%Y-%m-%d'),
+                                             "weight": weight,
+                                             "workout": workout_name
+                                             }],
+                                             "$position": 0}
+                                         }
+                                    })
+    else:
+        workoutsDB.db.tracker.update({"_id": current_user.id},
+                                     {"$push":
+                                         {"history":
+                                             {"$each": [{
+                                             "date": datetime.today().strftime('%Y-%m-%d'),
+                                             "workout": workout_name
+                                             }],
+                                             "$position": 0}
+                                         }
+                                     })
+
+    return redirect(url_for('work.workouts'))

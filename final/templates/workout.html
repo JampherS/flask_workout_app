@@ -10,13 +10,19 @@
     		    </div>
 	        {% endif %}
 	    {% endwith %}
+        <div>
+            Enter your weight after completing the respective workout!
+        </div>
+        <div>
+            Note: You can only track your progress ONCE per day, fill out workout and enter weight with caution.
+        </div>
         {% for workout in workouts %}
+            <form method="POST" action="/track/{{ workout['name'] }}">
             <div class="field">
-                <div class="control">
-                    <font size="+5"> {{ workout['name'].title() }} </font>
+                <font size="+5"> {{ workout['name'].title() }} </font>
                     {% for exercise in workout['exercises'] %}
                         <div class="control">
-                            <font size="+1"> {{ exercise['name'] }} </font>
+                            <font size="+1"> {{ exercise['name'].title() }} </font>
                         </div>
 
                         {% if exercise['weight'] is not none %}
@@ -43,8 +49,10 @@
                         </div>
                         {% endif %}
                     {% endfor %}
-                </div>
             </div>
+            <input class="input" type="weight" name="weight" placeholder="Today's Weight" autofocus="">
+            <button class="button">Track</button>
+            </form>
         {% endfor %}
         <div>
             *Exercises for each workout are listed in the intended order.

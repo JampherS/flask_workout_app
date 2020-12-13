@@ -13,21 +13,17 @@
 
         {% for exercise in exercises %}
             <form method="POST" action="/delete/{{ exercise['name'] }}">
-                <div class="field">
-                    <div class="control">
-                        {{ exercise['name'].title() }}
-                        <button class="button">Delete</button>
-                    </div>
+                <div class="control">
+                    {{ exercise['name'].title() }}
+                    <button class="button">Delete</button>
                 </div>
             </form>
         {% endfor %}
 
         <form method="POST" action="/add">
-            <div class="field">
-                <div class="control">
-                    <input class="input is-large" type="exercise" name="exercise" placeholder="New Exercise" autofocus="">
-                    <button class="button">Add</button>
-                </div>
+            <div class="control">
+                <input class="input is-large" type="exercise" name="exercise" placeholder="New Exercise" autofocus="">
+                <button class="button">Add</button>
             </div>
         </form>
 </div>
