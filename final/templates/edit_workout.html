@@ -11,7 +11,7 @@
 	    {% endif %}
     {% endwith %}
 
-    {% if workout_exercises is not none %}
+    {% if workout_exercises['exercises'] %}
     {% for exercise in workout_exercises['exercises'] %}
         <form action="/pop/{{ workout_name }}/{{ loop.index }}">
         {{ loop.index }}) {{ exercise['name'].title() }}
