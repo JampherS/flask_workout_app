@@ -16,10 +16,10 @@ def add():
 @work.route('/add', methods=['POST'])
 @login_required
 def add_post():
-    exercise_name = request.form.get('exercise').lower()
+    exercise_name = request.form.get('exercise').lower() if request.form.get('exercise') else None
     exercise_note = request.form.get('notes') if request.form.get('notes') else None
 
-    if exercise_name == "":
+    if not exercise_name:
         flash('Please enter exercise name')
         return redirect(url_for('work.add'))
 
@@ -50,9 +50,9 @@ def create():
 @work.route('/create', methods=['POST'])
 @login_required
 def create_post():
-    workout_name = request.form.get('workout').lower()
+    workout_name = request.form.get('workout').lower() if request.form.get('workout') else None
 
-    if workout_name == "":
+    if not workout_name:
         flash('Please enter workout name')
         return redirect(url_for('work.create'))
 
