@@ -49,20 +49,39 @@
         {% endfor %}
     {% endif %}
 
-    <div class="field">
-        {% for exercise in exercises %}
-            <form method="POST" action="/append/{{ workout_name }}/{{ exercise['name'] }}">
+
+    {% for exercise in exercises %}
+        <form method="POST" action="/append/{{ workout_name }}/{{ exercise['name'] }}">
+            <div class="field">
                 <div class="control">
                     {{ exercise['name'].title() }}
+                </div>
+
+                <div class="control">
                     <input class="input" type="order" name="order" placeholder="Order" autofocus="">
+                </div>
+
+                <div class="control">
                     <input class="input" type="weight" name="weight" placeholder="Weight Ratio" autofocus="">
+                </div>
+
+                <div class="control">
                     <input class="input" type="reps" name="reps" placeholder="Repetitions" autofocus="">
+                </div>
+
+                <div class="control">
                     <input class="input" type="sets" name="sets" placeholder="Sets" autofocus="">
+                </div>
+
+                <div class="control">
                     <input class="input" type="tim" name="time" placeholder="Time" autofocus="">
+                </div>
+
+                <div class="control">
                     <button class="button">Add</button>
                 </div>
-            </form>
-        {% endfor %}
-    </div>
+            </div>
+        </form>
+    {% endfor %}
 </div>
 {% endblock %}

@@ -15,9 +15,7 @@
         <div class="control">
             Enter your weight after completing the respective workout!
         </div>
-    </div>
 
-    <div class="field">
         <div class="control">
             Note: You can only track your progress ONCE per day, fill out workout and enter weight with caution.
         </div>
@@ -57,23 +55,26 @@
         {% endfor %}
     {% endif %}
     <form method="POST" action="/track/{{ workout['name'] }}">
-        <input class="input" type="weight" name="weight" placeholder="Today's Weight after {{ workout['name'].title() }}" autofocus="">
-        <button class="button">Track</button>
+        <div class="field">
+            <div class="control">
+                <input class="input" type="weight" name="weight" placeholder="Today's Weight after {{ workout['name'].title() }}" autofocus="">
+            </div>
+
+            <div class="control">
+                <button class="button">Track</button>
+            </div>
+        </div>
     </form>
 
     <div class="field">
         <div class="control">
             *Weight Ratio is relative to your body weight
         </div>
-    </div>
 
-    <div class="field">
         <div class="control">
             e.g. Your Weight = 150lb & Weight Ratio = 0.5
         </div>
-    </div>
 
-    <div class="field">
         <div class="control">
             Intended Weight Use: 75lb
         </div>
