@@ -24,6 +24,7 @@
         <button class="button"> Track! </button>
     </form>
 
+    {% if hist is not none %}
     {% for day in hist %}
     <div class="field">
         <div class=control">
@@ -43,5 +44,6 @@
         {% endif %}
     </div>
     {% endfor %}
+    {% endif %}
 </div>
 {% endblock %}

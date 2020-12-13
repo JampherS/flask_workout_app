@@ -18,7 +18,12 @@ def index():
 @login_required
 def profile():
 	user = workoutsDB.db.tracker.find_one({"_id": current_user.id})
-	return render_template('profile.html', name=current_user.name, admin=is_admin(current_user.id), hist=user['history'])
+	try:
+		history = user['history']
+	except:
+		history = None
+
+	return render_template('profile.html', name=current_user.name, admin=is_admin(current_user.id), hist=history)
 
 @main.route('/profile', methods=['POST'])
 @login_required
