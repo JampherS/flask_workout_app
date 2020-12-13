@@ -12,7 +12,7 @@
 	    {% endwith %}
 
         {% for exercise in exercises %}
-            <form method="POST" action="{{ url_for('work.delete', exercise=exercise['name']) }}">
+            <form method="POST" action="/delete/{{ exercise['name'] }}">
                 <div class="field">
                     <div class="control">
                         {{ exercise['name'].title() }}
