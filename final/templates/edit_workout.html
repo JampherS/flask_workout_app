@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title">{{ workout_name.title() }} Editor</h3>
+    <h3 class="title"> <font size="+5"> {{ workout_name.title() }} Editor </font> </h3>
     {% with messages = get_flashed_messages() %}
 	    {% if messages %}
     		<div class="notification is-danger">

@@ -61,7 +61,7 @@ def create_post():
 @login_required
 def append(workout_name):
     exercises = workoutsDB.db.exercises.find({}).sort("name")
-    return render_template("edit_workout.html", workout_name=workout_name, exercises=exercises)
+    return render_template("edit_workout.html", workout_name=workout_name, exercises=exercises, admin=is_admin(current_user.id))
 
 @work.route('/append/<workout_name>/<exercise_name>', methods=['POST'])
 @login_required

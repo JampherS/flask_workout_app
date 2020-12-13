@@ -1,7 +1,63 @@
 {% extends "base.html" %}
 
 {% block content %}
-    {% for workout in workouts %}
-        {{ workout['name'].title() }}
-    {% endfor %}
+<div class="column is-4 is-offset-4">
+    <h3 class="title"> <font size="+7"> Workouts </font> </h3>
+    	{% with messages = get_flashed_messages() %}
+	        {% if messages %}
+    		    <div class="notification is-danger">
+        		    {{ messages[0] }}
+    		    </div>
+	        {% endif %}
+	    {% endwith %}
+        {% for workout in workouts %}
+            <div class="field">
+                <div class="control">
+                    <font size="+5"> {{ workout['name'].title() }} </font>
+                    {% for exercise in workout['exercises'] %}
+                        <div class="control">
+                            <font size="+1"> {{ exercise['name'] }} </font>
+                        </div>
+
+                        {% if exercise['weight'] is not none %}
+                        <div class="control">
+                            <p style="margin-left:10%"> Weight Ratio: {{ exercise['weight'] }} </p>
+                        </div>
+                        {% endif %}
+
+                        {% if exercise['reps'] is not none %}
+                        <div class="control">
+                            <p style="margin-left:10%"> Repititions: {{ exercise['reps'] }} </p>
+                        </div>
+                        {% endif %}
+
+                        {% if exercise['sets'] is not none %}
+                        <div class="control">
+                            <p style="margin-left:10%"> Sets: {{ exercise['sets'] }} </p>
+                        </div>
+                        {% endif %}
+
+                        {% if exercise['time'] is not none %}
+                        <div class="control">
+                            <p style="margin-left:10%"> Time: {{ exercise['time'] }} </p>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endfor %}
+        <div>
+            *Exercises for each workout are listed in the intended order.
+        </div>
+        <div>
+            **Weight Ratio is relative to your body weight
+        </div>
+        <div>
+            e.g.
+            Your Weight = 150lb & Weight Ratio = 0.5
+        </div>
+        <div>
+            Intended Weight Use: 75lb </p>
+        </div>
+</div>
 {% endblock %}
