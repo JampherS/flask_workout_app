@@ -1,5 +1,5 @@
 from flask import Flask
-from .db_config import workoutsDB, usersDB
+from .db_config import usersDB, workoutsDB
 from .log import login_manager
 from .models import User, Role
 from werkzeug.security import generate_password_hash
@@ -17,7 +17,7 @@ def create_app():
 
 	with app.app_context():
 		usersDB.create_all()
-		if not Role.query.filter_by(id=0):
+		if not Role.query.filter_by().first():
 			usersDB.session.add(Role(id=0, name='admin'))
 			usersDB.session.add(Role(id=1, name='user'))
 
@@ -28,11 +28,17 @@ def create_app():
 			usersDB.session.add(admin)
 			usersDB.session.commit()
 
+			workoutsDB.db.tracker.delete_many({})
+			workoutsDB.db.tracker.insert_one({"_id": admin.id})
+
 
 	from .auth import auth as auth_blueprint
 	app.register_blueprint(auth_blueprint)
 
 	from .main import main as main_blueprint
 	app.register_blueprint(main_blueprint)
+
+	from .work import work as work_blueprint
+	app.register_blueprint(work_blueprint)
 
 	return app

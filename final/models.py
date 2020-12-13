@@ -1,15 +1,11 @@
 from flask_login import UserMixin
-from .db_config import workoutsDB, usersDB
+from .db_config import usersDB
 from .log import login_manager
 
-class Exercise:
-	def __init__(self, name):
-		self.name = name
-
-class Routine:
-	def __init__(self, name, exercises):
-		self.name = name
-		self.exercises = exercises
+def is_admin(id):
+	user_role = UserRoles.query.filter_by(user_id=id).first()
+	admin = not bool(user_role.role_id)
+	return admin
 
 class User(UserMixin, usersDB.Model):
 	id = usersDB.Column(usersDB.Integer, primary_key=True)

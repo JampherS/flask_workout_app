@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-    Some list of workouts!
+    {% for workout in workouts %}
+        {{ workout['name'].title() }}
+    {% endfor %}
 {% endblock %}

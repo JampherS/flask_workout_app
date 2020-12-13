@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
-from .db_config import usersDB
+from .db_config import usersDB, workoutsDB
 from .models import User, Role
 
 auth = Blueprint('auth', __name__)
@@ -48,6 +48,7 @@ def signup_post():
 	usersDB.session.add(new_user)
 	usersDB.session.commit()
 
+	workoutsDB.db.tracker.insert_one({"_id": new_user.id})
 	return redirect(url_for('auth.login'))
 
 @auth.route('/logout')
