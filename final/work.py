@@ -103,7 +103,7 @@ def append_post(workout_name, exercise_name):
     for workout in workouts:
         length = workout['length']
 
-    if order is None or order < 0:
+    if not order or order < 0:
         flash('Please enter a valid order')
         return redirect(url_for('work.append', workout_name=workout_name))
     if order > length:
@@ -185,7 +185,7 @@ def track(workout_name):
         flash("Can only log one weigh-in/workout per day")
         return redirect(url_for('work.workouts'))
 
-    if weight is not None and weight > 0:
+    if weight and weight > 0:
         workoutsDB.db.tracker.update({"_id": current_user.id},
                                     {"$push":
                                          {"history":
