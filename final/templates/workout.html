@@ -22,7 +22,7 @@
                 <font size="+5"> {{ workout['name'].title() }} </font>
                     {% for exercise in workout['exercises'] %}
                         <div class="control">
-                            <font size="+1"> {{ exercise['name'].title() }} </font>
+                            <font size="+1"> {{ loop.index }}) {{ exercise['name'].title() }} </font>
                         </div>
 
                         {% if exercise['weight'] is not none %}
@@ -55,10 +55,7 @@
             </form>
         {% endfor %}
         <div>
-            *Exercises for each workout are listed in the intended order.
-        </div>
-        <div>
-            **Weight Ratio is relative to your body weight
+            *Weight Ratio is relative to your body weight
         </div>
         <div>
             e.g.

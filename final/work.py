@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_required, current_user
@@ -21,18 +22,21 @@ def add_post():
         flash('Please enter exercise name')
         return redirect(url_for('work.add'))
 
-    exercise = workoutsDB.db.exercises.find_one({"name": exercise_name})
+    id = re.sub(r'\W+', '', exercise_name)
+
+    exercise = workoutsDB.db.exercises.find_one({"_id": id})
     if exercise:
         flash('Exercise already exists')
         return redirect(url_for('work.add'))
 
-    workoutsDB.db.exercises.insert_one({"name": exercise_name})
+    workoutsDB.db.exercises.insert_one({"_id": id, "name": exercise_name})
     return redirect(url_for('work.add'))
 
-@work.route('/delete/<exercise_name>', methods=['POST'])
+@work.route('/delete/<exercise_name>')
 @login_required
 def delete(exercise_name):
-    workoutsDB.db.exercises.delete_one({"name": exercise_name})
+    id = re.sub(r'\W+', '', exercise_name)
+    workoutsDB.db.exercises.delete_one({"_id": id})
     return redirect(url_for('work.add'))
 
 @work.route('/create')
@@ -50,19 +54,23 @@ def create_post():
         flash('Please enter workout name')
         return redirect(url_for('work.create'))
 
-    workout = workoutsDB.db.workouts.find_one({"name": workout_name})
+    id = re.sub(r'\W+', '', workout_name)
+
+    workout = workoutsDB.db.workouts.find_one({"_id": id})
     if workout:
         flash('Workout already exists')
         return redirect(url_for('work.create'))
 
-    workoutsDB.db.workouts.insert_one({"name": workout_name})
+    workoutsDB.db.workouts.insert_one({"_id": id, "name": workout_name})
     return redirect(url_for('work.append', workout_name=workout_name))
 
 @work.route('/append/<workout_name>')
 @login_required
 def append(workout_name):
+    id = re.sub(r'\W+', '', workout_name)
+    workout_exercises = workoutsDB.db.workouts.find_one({"_id": id})
     exercises = workoutsDB.db.exercises.find({}).sort("name")
-    return render_template("edit_workout.html", workout_name=workout_name, exercises=exercises, admin=is_admin(current_user.id))
+    return render_template("edit_workout.html", workout_name=workout_name, workout_exercises=workout_exercises, exercises=exercises, admin=is_admin(current_user.id))
 
 @work.route('/append/<workout_name>/<exercise_name>', methods=['POST'])
 @login_required
@@ -75,9 +83,12 @@ def append_post(workout_name, exercise_name):
         time = float(request.form.get('time')) if request.form.get('time') else None
     except:
         flash("Please enter (a) valid response(s)")
+        return redirect(url_for('work.append', workout_name=workout_name))
+
+    id = re.sub(r'\W+', '', workout_name)
 
     workouts = workoutsDB.db.workouts.aggregate([
-        {"$match": {"name": workout_name}},
+        {"$match": {"_id": id}},
         {"$project":
              {"length":
                   {"$size":
@@ -90,14 +101,14 @@ def append_post(workout_name, exercise_name):
     for workout in workouts:
         length = workout['length']
 
-    if order is None:
-        flash('Please enter an order')
+    if order is None or order < 0:
+        flash('Please enter a valid order')
         return redirect(url_for('work.append', workout_name=workout_name))
     if order > length:
         flash(F'Workout only has {length} exercises right now')
         return redirect(url_for('work.append', workout_name=workout_name))
 
-    workoutsDB.db.workouts.update({"name": workout_name},
+    workoutsDB.db.workouts.update({"_id": id},
                                   {"$push":
                                       {"exercises":
                                           {"$each": [{
@@ -112,11 +123,28 @@ def append_post(workout_name, exercise_name):
                                   })
     return redirect(url_for('work.append', workout_name=workout_name))
 
-@work.route('/remove/<workout_name>', methods=['POST'])
+@work.route('/remove/<workout_name>')
 @login_required
 def remove(workout_name):
-    workoutsDB.db.workouts.delete_one({"name": workout_name})
+    id = re.sub(r'\W+', '', workout_name)
+    workoutsDB.db.workouts.delete_one({"_id": id})
     return redirect(url_for('work.create'))
+
+@work.route('/pop/<workout_name>/<index>')
+@login_required
+def pop(workout_name, index):
+    index = int(index) - 1
+    filt = F"exercises.{index}"
+
+    id = re.sub(r'\W+', '', workout_name)
+
+    workoutsDB.db.workouts.update_one({"_id": id},
+                                      {"$unset":
+                                           {filt: 1}})
+    workoutsDB.db.workouts.update_one({"_id": id},
+                                      {"$pull":
+                                           {"exercises": None}})
+    return redirect(url_for('work.append', workout_name=workout_name))
 
 @work.route('/workouts')
 @login_required

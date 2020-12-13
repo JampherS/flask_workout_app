@@ -14,12 +14,12 @@
         {% for workout in workouts %}
             {{ workout['name'].title() }}
             <div>
-            <form method="POST" action="/remove/{{ workout['name'] }}">
+            <form action="/append/{{ workout['name'] }}">
                 <div class="control">
                         <button class="button">Update</button>
                 </div>
             </form>
-            <form method="POST" action="/remove/{{ workout['name'] }}">
+            <form action="/remove/{{ workout['name'] }}">
                 <div class="control">
                         <button class="button">Delete</button>
                 </div>
