@@ -50,7 +50,7 @@
                         {% endif %}
                     {% endfor %}
             </div>
-            <input class="input" type="weight" name="weight" placeholder="Today's Weight" autofocus="">
+            <input class="input" type="weight" name="weight" placeholder="Today's Weight after {{ workout['name'].title() }}" autofocus="">
             <button class="button">Track</button>
             </form>
         {% endfor %}
