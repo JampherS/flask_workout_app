@@ -148,18 +148,25 @@ def pop(workout_name, index):
                                            {"exercises": None}})
     return redirect(url_for('work.append', workout_name=workout_name))
 
-@work.route('/<exercise_name>')
+@work.route('/exe/<exercise_name>')
 @login_required
 def exercise(exercise_name):
     id = re.sub(r'\W+', '', exercise_name.lower())
-    exercise = workoutsDB.db.exercises.find_one({"_id": id})
+    exercise = workoutsDB.db.exercises.find_one({"_id": str(id)})
     return render_template('exercise.html', exercise=exercise)
+
+@work.route('/wor/<workout_name>')
+@login_required
+def workout(workout_name):
+    id = re.sub(r'\W+', '', workout_name.lower())
+    workout = workoutsDB.db.workouts.find_one({"_id": str(id)})
+    return render_template('workout.html', workout=workout)
 
 @work.route('/workouts')
 @login_required
 def workouts():
     workouts = workoutsDB.db.workouts.find({}).sort("name")
-    return render_template('workout.html', workouts=workouts, admin=is_admin(current_user.id))
+    return render_template('workouts.html', workouts=workouts, admin=is_admin(current_user.id))
 
 @work.route('/track/<workout_name>', methods=['POST'])
 @login_required

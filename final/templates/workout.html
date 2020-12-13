@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title"> <font size="+7"> Workouts </font> </h3>
+    <h3 class="title"> <font size="+7"> {{ workout['name'].title() }} </font> </h3>
     	{% with messages = get_flashed_messages() %}
 	        {% if messages %}
     		    <div class="notification is-danger">
@@ -16,13 +16,12 @@
         <div>
             Note: You can only track your progress ONCE per day, fill out workout and enter weight with caution.
         </div>
-        {% for workout in workouts %}
-            <form method="POST" action="/track/{{ workout['name'] }}">
+        <form method="POST" action="/track/{{ workout['name'] }}">
             <div class="field">
-                <font size="+5"> {{ workout['name'].title() }} </font>
+                {% if workout['exercises'] %}
                     {% for exercise in workout['exercises'] %}
                         <div class="control">
-                            <a href="/{{ exercise['name'] }}"> <font size="+1"> {{ loop.index }}) {{ exercise['name'].title() }} </font> </a>
+                            <a href="/exe/{{ exercise['name'] }}"> <font size="+1"> {{ loop.index }}) {{ exercise['name'].title() }} </font> </a>
                         </div>
 
                         {% if exercise['weight'] is not none %}
@@ -49,11 +48,11 @@
                         </div>
                         {% endif %}
                     {% endfor %}
+                {% endif %}
             </div>
             <input class="input" type="weight" name="weight" placeholder="Today's Weight after {{ workout['name'].title() }}" autofocus="">
             <button class="button">Track</button>
-            </form>
-        {% endfor %}
+        </form>
         <div>
             *Weight Ratio is relative to your body weight
         </div>
