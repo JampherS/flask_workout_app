@@ -22,7 +22,7 @@
                 <font size="+5"> {{ workout['name'].title() }} </font>
                     {% for exercise in workout['exercises'] %}
                         <div class="control">
-                            <font size="+1"> {{ loop.index }}) {{ exercise['name'].title() }} </font>
+                            <a href="/{{ exercise['name'] }}"> <font size="+1"> {{ loop.index }}) {{ exercise['name'].title() }} </font> </a>
                         </div>
 
                         {% if exercise['weight'] is not none %}

@@ -11,12 +11,13 @@ work = Blueprint('work', __name__)
 @login_required
 def add():
     exercises = workoutsDB.db.exercises.find({}).sort("name")
-    return render_template('exercise.html', exercises=exercises, admin=is_admin(current_user.id))
+    return render_template('exercises.html', exercises=exercises, admin=is_admin(current_user.id))
 
 @work.route('/add', methods=['POST'])
 @login_required
 def add_post():
     exercise_name = request.form.get('exercise').lower()
+    exercise_note = request.form.get('notes') if request.form.get('notes') else None
 
     if exercise_name == "":
         flash('Please enter exercise name')
@@ -29,7 +30,7 @@ def add_post():
         flash('Exercise already exists')
         return redirect(url_for('work.add'))
 
-    workoutsDB.db.exercises.insert_one({"_id": str(id), "name": exercise_name})
+    workoutsDB.db.exercises.insert_one({"_id": str(id), "name": exercise_name, "notes": exercise_note})
     return redirect(url_for('work.add'))
 
 @work.route('/delete/<exercise_name>')
@@ -37,6 +38,7 @@ def add_post():
 def delete(exercise_name):
     id = re.sub(r'\W+', '', exercise_name)
     workoutsDB.db.exercises.delete_one({"_id": str(id)})
+    workoutsDB.db.workouts.update({}, {"$pull": {"exercises": {"name": exercise_name}}})
     return redirect(url_for('work.add'))
 
 @work.route('/create')
@@ -145,6 +147,13 @@ def pop(workout_name, index):
                                       {"$pull":
                                            {"exercises": None}})
     return redirect(url_for('work.append', workout_name=workout_name))
+
+@work.route('/<exercise_name>')
+@login_required
+def exercise(exercise_name):
+    id = re.sub(r'\W+', '', exercise_name.lower())
+    exercise = workoutsDB.db.exercises.find_one({"_id": id})
+    return render_template('exercise.html', exercise=exercise)
 
 @work.route('/workouts')
 @login_required

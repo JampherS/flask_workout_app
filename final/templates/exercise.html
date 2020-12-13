@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="column is-4 is-offset-4">
-    <h3 class="title"> <font size="+5"> Add Exercise Page </font> </h3>
+    <h3 class="title"> <font size="+5"> {{ exercise['name'].title() }} Page </font> </h3>
     	{% with messages = get_flashed_messages() %}
 	        {% if messages %}
     		    <div class="notification is-danger">
@@ -11,20 +11,10 @@
 	        {% endif %}
 	    {% endwith %}
 
-        {% for exercise in exercises %}
-            <form action="/delete/{{ exercise['name'] }}">
-                <div class="control">
-                    {{ exercise['name'].title() }}
-                    <button class="button">Delete</button>
-                </div>
-            </form>
-        {% endfor %}
-
-        <form method="POST" action="/add">
-            <div class="control">
-                <input class="input is-large" type="exercise" name="exercise" placeholder="New Exercise" autofocus="">
-                <button class="button">Add</button>
-            </div>
-        </form>
+        {% if exercise['notes'] %}
+        <div>
+            <p style="margin-left:10%"> {{ exercise['notes'] }} </p>
+        </div>
+        {% endif %}
 </div>
 {% endblock %}
