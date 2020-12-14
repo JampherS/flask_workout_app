@@ -12,6 +12,12 @@
 		    {% endif %}
 	    {% endwith %}
 
+        <div class="field">
+            <div class="control">
+                You may only enter the following information ONCE, enter with caution.
+            </div>
+        </div>
+
         <form method="POST" action="/signup">
             <div class="field">
                 <div class="control">
@@ -28,6 +34,24 @@
             <div class="field">
                 <div class="control">
                     <input class="input is-large" type="password" name="password" placeholder="Password">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="sex" name="sex" placeholder="Sex (M or F)" autofocus="">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="height" name="height" placeholder="Height (ex. 6.5 for 6 feet 6 inches" autofocus="">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <input class="input is-large" type="date" name="DOB" placeholder="Date of Birth" autofocus="">
                 </div>
             </div>
 

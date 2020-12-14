@@ -11,10 +11,31 @@
         {% endif %}
     {% endwith %}
 
+    <form method="POST" action="/search">
+        <div class="field">
+            <div class="control">
+                Looking for a specific exercise or keyword?
+            </div>
+
+            <div class="control">
+                <input class="input is-large" type="search" name="search" placeholder="Search" autofocus="">
+                <button class="button"> Search </button>
+            </div>
+        </div>
+    </form>
+
     <div class="field">
         {% for workout in workouts %}
             <div class="control">
                 <a href="/wor/{{ workout['name'] }}"> <font size="+5"> {{ workout['name'].title() }} </font> </a>
+            </div>
+
+            <div class="control">
+                <p style="margin-left:10%"> Difficulty: {{ workout['diff'].title() }} </p>
+            </div>
+
+            <div class="control">
+                <p style="margin-left:10%"> Time: {{ workout['length'].title() }} Hour(s) </p>
             </div>
         {% endfor %}
     </div>

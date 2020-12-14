@@ -1,3 +1,4 @@
+from datetime import datetime
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask_login import login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -31,9 +32,34 @@ def signup():
 
 @auth.route('/signup', methods=['POST'])
 def signup_post():
-	email = request.form.get('email')
-	name = request.form.get('name')
-	password = request.form.get('password')
+	email = request.form.get('email') if request.form.get('email') else None
+	name = request.form.get('name') if request.form.get('name') else None
+	password = request.form.get('password') if request.form.get('password') else None
+	sex = request.form.get('sex').lower() if request.form.get('sex') else None
+	try:
+		height = float(request.form.get('height')) if request.form.get('height') else None
+	except:
+		flash('Please enter a valid height')
+		return redirect(url_for('auth.signup'))
+	DOB = request.form.get('DOB') if request.form.get('DOB') else None
+
+	if not email or not name or not password or not sex or not height or not DOB:
+		flash('Please enter the following information')
+		return redirect(url_for('auth.signup'))
+
+	if height <= 0:
+		flash('Please enter a valid height')
+		return redirect(url_for('auth.signup'))
+
+	if sex != 'm' and sex != 'f':
+		flash('Please enter a valid sex')
+		return redirect(url_for('auth.signup'))
+
+	age = (datetime.strptime(datetime.today().strftime('%Y-%m-%d'), '%Y-%m-%d') - datetime.strptime(DOB, '%Y-%m-%d')).days / 365
+
+	if age < 13:
+		flash('Must be 13 years or older to use this service')
+		return redirect(url_for('auth.signup'))
 
 	user = User.query.filter_by(email=email).first()
 
@@ -48,7 +74,7 @@ def signup_post():
 	usersDB.session.add(new_user)
 	usersDB.session.commit()
 
-	workoutsDB.db.tracker.insert_one({"_id": new_user.id})
+	workoutsDB.db.tracker.insert_one({"_id": new_user.id, "sex": sex, "height": height, "DOB": DOB})
 	return redirect(url_for('auth.login'))
 
 @auth.route('/logout')

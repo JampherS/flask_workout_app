@@ -3,16 +3,22 @@
 {% block content %}
 <div class="column is-4 is-offset-4">
     <h1 class="title">
-        <font size="+5"> Welcome, {{name}}! </font>
+        <font size="+5"> Welcome, {{ name }}! </font>
     </h1>
 
-    <h2 class="subtitle">
-        {% if admin %}
-            Hey, you're an admin!
-        {% endif %}
-    </h2>
+    {% with messages = get_flashed_messages() %}
+	    {% if messages %}
+    		<div class="notification is-danger">
+        		{{ messages[0] }}
+    		</div>
+	    {% endif %}
+    {% endwith %}
 
     {% if admin %}
+        <h2 class="subtitle">
+            Hey, you're an admin!
+        </h2>
+
         <form method="POST" action="/addadmin">
             <div class="field">
                 <div class="control">
@@ -26,13 +32,23 @@
         </form>
     {% endif %}
 
-    {% with messages = get_flashed_messages() %}
-	    {% if messages %}
-    		<div class="notification is-danger">
-        		{{ messages[0] }}
-    		</div>
-	    {% endif %}
-    {% endwith %}
+    <div class="field">
+        <div class="field">
+            My info:
+        </div>
+
+        <div class="field">
+            Sex: {{ user['sex'].title() }}
+        </div>
+
+        <div class="field">
+            Height: {{ user['height'] }} ft.
+        </div>
+
+        <div class="field">
+            DOB: {{ user['DOB'] }}
+        </div>
+    </div>
 
     <form method="POST" action="/profile">
         <div class="field">
@@ -44,8 +60,8 @@
         </div>
     </form>
 
-    {% if hist is not none %}
-        {% for day in hist %}
+    {% if user['history'] %}
+        {% for day in user['history'] %}
             <div class="field">
                 <div class=control">
                     <font size="+3"> Date: {{ day['date'] }} </font>

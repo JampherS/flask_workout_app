@@ -7,6 +7,19 @@ from .models import is_admin
 
 work = Blueprint('work', __name__)
 
+@work.route('/search', methods=['POST'])
+@login_required
+def search():
+    s = request.form.get('search') if request.form.get('search') else None
+    search = s.lower()
+    if search is None:
+        return redirect(url_for('work.workouts'))
+
+    results = workoutsDB.db.workouts.find({"$text": {"$search": search}})
+    if results.count() == 0:
+        results = None
+    return render_template("search.html", search=s, results=results, admin=is_admin(current_user.id))
+
 @work.route('/add')
 @login_required
 def add():
@@ -51,10 +64,21 @@ def create():
 @login_required
 def create_post():
     workout_name = request.form.get('workout').lower() if request.form.get('workout') else None
+    difficulty = request.form.get('difficulty').lower() if request.form.get('difficulty') else None
+    length = request.form.get('length').lower() if request.form.get('length') else None
 
     if not workout_name:
         flash('Please enter workout name')
         return redirect(url_for('work.create'))
+
+    if not difficulty:
+        flash('Please enter difficulty level')
+        return redirect(url_for('work.create'))
+
+    if not length:
+        flash('Please enter length of workout')
+        return redirect(url_for('work.create'))
+
 
     id = re.sub(r'\W+', '', workout_name)
 
@@ -63,7 +87,7 @@ def create_post():
         flash('Workout already exists')
         return redirect(url_for('work.create'))
 
-    workoutsDB.db.workouts.insert_one({"_id": str(id), "name": workout_name})
+    workoutsDB.db.workouts.insert_one({"_id": str(id), "name": workout_name, "diff": difficulty, "length": length})
     return redirect(url_for('work.append', workout_name=workout_name))
 
 @work.route('/append/<workout_name>')
@@ -103,7 +127,7 @@ def append_post(workout_name, exercise_name):
     for workout in workouts:
         length = workout['length']
 
-    if not order or order < 0:
+    if order is None or order < 0:
         flash('Please enter a valid order')
         return redirect(url_for('work.append', workout_name=workout_name))
     if order > length:
@@ -153,14 +177,14 @@ def pop(workout_name, index):
 def exercise(exercise_name):
     id = re.sub(r'\W+', '', exercise_name.lower())
     exercise = workoutsDB.db.exercises.find_one({"_id": str(id)})
-    return render_template('exercise.html', exercise=exercise)
+    return render_template('exercise.html', exercise=exercise, admin=is_admin(current_user.id))
 
 @work.route('/wor/<workout_name>')
 @login_required
 def workout(workout_name):
     id = re.sub(r'\W+', '', workout_name.lower())
     workout = workoutsDB.db.workouts.find_one({"_id": str(id)})
-    return render_template('workout.html', workout=workout)
+    return render_template('workout.html', workout=workout, admin=is_admin(current_user.id))
 
 @work.route('/workouts')
 @login_required

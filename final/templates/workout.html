@@ -13,11 +13,15 @@
 
     <div class="field">
         <div class="control">
-            Enter your weight after completing the respective workout!
+            Workout Info:
         </div>
 
         <div class="control">
-            Note: You can only track your progress ONCE per day, fill out workout and enter weight with caution.
+            <p style="margin-left:10%"> Difficulty: {{ workout['diff'].title() }} </p>
+        </div>
+
+        <div class="control">
+            <p style="margin-left:10%"> Time: {{ workout['length'].title() }} (in Hours) </p>
         </div>
     </div>
 
@@ -48,12 +52,23 @@
 
                 {% if exercise['time'] is not none %}
                     <div class="control">
-                        <p style="margin-left:10%"> Time: {{ exercise['time'] }} </p>
+                        <p style="margin-left:10%"> Time: {{ exercise['time'] }} Minute(s)</p>
                     </div>
                 {% endif %}
             </div>
         {% endfor %}
     {% endif %}
+
+    <div class="field">
+        <div class="control">
+            Enter your weight after completing the respective workout!
+        </div>
+
+        <div class="control">
+            Note: You can only track your progress ONCE per day, fill out workout and enter weight with caution.
+        </div>
+    </div>
+
     <form method="POST" action="/track/{{ workout['name'] }}">
         <div class="field">
             <div class="control">
