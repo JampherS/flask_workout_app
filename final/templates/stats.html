@@ -82,7 +82,7 @@
 		    data: {
 			labels: [{% for wo in workouts %} "{{wo['name']}}", {% endfor %}],
 			datasets: [{
-			    label: 'Weight',
+			    label: '# of Completions',
 			    backgroundColor: 'rgba(255, 0, 0, 0.5)',
 			    borderColor: 'rgba(0, 0, 0, 1)',
 			    data: [{% for wo in workouts %} {{wo['uses']}}, {% endfor %}],
