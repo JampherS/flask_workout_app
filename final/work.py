@@ -53,8 +53,8 @@ def add_post():
 @login_required
 def delete(exercise_name):
     id = re.sub(r'\W+', '', exercise_name)
+    workoutsDB.db.workouts.update({}, {"$pull": {"exercises": {"name": exercise_name}}}, multi=True)
     workoutsDB.db.exercises.delete_one({"_id": str(id)})
-    workoutsDB.db.workouts.update({}, {"$pull": {"exercises": {"name": exercise_name}}})
     return redirect(url_for('work.add'))
 
 @work.route('/create')
