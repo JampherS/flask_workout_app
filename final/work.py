@@ -53,8 +53,8 @@ def add_post():
 @login_required
 def delete(exercise_name):
     id = re.sub(r'\W+', '', exercise_name)
+    workoutsDB.db.workouts.update({}, {"$pull": {"exercises": {"name": exercise_name}}}, multi=True)
     workoutsDB.db.exercises.delete_one({"_id": str(id)})
-    workoutsDB.db.workouts.update({}, {"$pull": {"exercises": {"name": exercise_name}}})
     return redirect(url_for('work.add'))
 
 @work.route('/create')
@@ -217,7 +217,7 @@ def track(workout_name):
         return redirect(url_for('work.workouts', sort='name', scend=1))
 
     entry = workoutsDB.db.tracker.find_one({"_id": current_user.id,
-                                            "history.date": datetime.today().strftime('%Y-%m-%d')})
+                                            "history.date": datetime.today().strftime('%m-%d-%Y')})
 
 
     if entry:
@@ -228,23 +228,19 @@ def track(workout_name):
         workoutsDB.db.tracker.update({"_id": current_user.id},
                                     {"$push":
                                          {"history":
-                                             {"$each": [{
-                                             "date": datetime.today().strftime('%m-%d-%Y'),
+                                             {"date": datetime.today().strftime('%m-%d-%Y'),
                                              "weight": weight,
                                              "workout": workout_name
-                                             }],
-                                             "$position": 0}
+                                             }
                                          }
                                     })
     else:
         workoutsDB.db.tracker.update({"_id": current_user.id},
                                      {"$push":
                                          {"history":
-                                             {"$each": [{
-                                             "date": datetime.today().strftime('%m-%d-%Y'),
+                                             {"date": datetime.today().strftime('%m-%d-%Y'),
                                              "workout": workout_name
-                                             }],
-                                             "$position": 0}
+                                             }
                                          }
                                      })
 
@@ -265,9 +261,8 @@ def progress():
 @work.route('/stats')
 @login_required
 def stats():
-	user = workoutsDB.db.tracker.find_one({'_id': current_user.id})
-	workouts = workoutsDB.db.workouts.find({})
-	temp = []
-	for wo in workouts:
-		temp.append(wo)
-	return render_template('stats.html', admin=is_admin(current_user.id), workouts=temp)
+    workouts = workoutsDB.db.workouts.find({})
+    temp = []
+    for wo in workouts:
+        temp.append(wo)
+    return render_template('stats.html', admin=is_admin(current_user.id), workouts=temp)

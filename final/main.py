@@ -18,8 +18,11 @@ def index():
 @login_required
 def profile():
 	user = workoutsDB.db.tracker.find_one({"_id": current_user.id})
-
-	return render_template('profile.html', name=current_user.name, admin=is_admin(current_user.id), user=user)
+	try:
+		history = reversed(user['history'])
+	except:
+		history = None
+	return render_template('profile.html', name=current_user.name, admin=is_admin(current_user.id), user=user, history=history)
 
 @main.route('/profile', methods=['POST'])
 @login_required
@@ -35,7 +38,7 @@ def track():
 		return redirect(url_for('main.profile'))
 
 	entry = workoutsDB.db.tracker.find_one({"_id": current_user.id,
-											"history.date": datetime.today().strftime('%Y-%m-%d')})
+											"history.date": datetime.today().strftime('%m-%d-%Y')})
 
 	if entry:
 		flash("Can only log one weigh-in/workout per day")
@@ -44,11 +47,9 @@ def track():
 	workoutsDB.db.tracker.update({"_id": current_user.id},
 								 {"$push":
 									 {"history":
-										 {"$each": [{
-											 "date": datetime.today().strftime('%Y-%m-%d'),
+										 {"date": datetime.today().strftime('%m-%d-%Y'),
 											 "weight": weight
-										 }],
-											 "$position": 0}
+										 }
 									 }
 								 })
 	return redirect(url_for('main.profile'))
