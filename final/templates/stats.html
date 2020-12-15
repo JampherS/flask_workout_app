@@ -80,7 +80,7 @@
 		var myChart = new Chart(ctx, {
 		    type: 'bar',
 		    data: {
-			labels: [{% for wo in workouts %} "{{wo['name']}}", {% endfor %}],
+			labels: [{% for wo in workouts %} "{{wo['name'].title()}}", {% endfor %}],
 			datasets: [{
 			    label: 'Weight',
 			    backgroundColor: 'rgba(255, 0, 0, 0.5)',
