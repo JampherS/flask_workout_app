@@ -36,12 +36,12 @@ def signup_post():
 	name = request.form.get('name') if request.form.get('name') else None
 	password = request.form.get('password') if request.form.get('password') else None
 	sex = request.form.get('sex').lower() if request.form.get('sex') else None
+	DOB = request.form.get('DOB') if request.form.get('DOB') else None
 	try:
 		height = float(request.form.get('height')) if request.form.get('height') else None
 	except:
 		flash('Please enter a valid height')
 		return redirect(url_for('auth.signup'))
-	DOB = request.form.get('DOB') if request.form.get('DOB') else None
 
 	if not email or not name or not password or not sex or not height or not DOB:
 		flash('Please enter the following information')
@@ -55,7 +55,7 @@ def signup_post():
 		flash('Please enter a valid sex')
 		return redirect(url_for('auth.signup'))
 
-	age = (datetime.strptime(datetime.today().strftime('%Y-%m-%d'), '%Y-%m-%d') - datetime.strptime(DOB, '%Y-%m-%d')).days / 365
+	age = (datetime.today() - datetime.strptime(DOB, '%Y-%m-%d')).days / 365
 
 	if age < 13:
 		flash('Must be 13 years or older to use this service')
@@ -67,6 +67,8 @@ def signup_post():
 		flash('Email Address already exists, please login')
 		return redirect(url_for('auth.signup'))
 	hashed_pass = generate_password_hash(password, method='sha256')
+
+	DOB = datetime.strftime(datetime.strptime(DOB, '%Y-%m-%d'), '%m-%d-%Y')
 
 	new_user = User(email=email, name=name, password=hashed_pass)
 	assigned_role = Role.query.filter_by(name='user').first()

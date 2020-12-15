@@ -17,11 +17,11 @@
         </div>
 
         <div class="control">
-            <p style="margin-left:10%"> Difficulty: {{ workout['diff'].title() }} </p>
+            <p style="margin-left:10%"> Difficulty:{% if workout['diff'] == 1 %} Easy{% elif workout['diff'] == 2 %} Medium {% else %} Hard{% endif %} </p>
         </div>
 
         <div class="control">
-            <p style="margin-left:10%"> Time: {{ workout['length'].title() }} (in Hours) </p>
+            <p style="margin-left:10%"> Time: {{ workout['length'] }} (in Hours) </p>
         </div>
     </div>
 

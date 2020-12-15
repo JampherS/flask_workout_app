@@ -17,6 +17,12 @@
                 <p style="margin-left:10%"> {{ exercise['notes'] }} </p>
             </div>
         </div>
+    {% else %}
+        <div class="field">
+            <div class="control">
+                <p style="margin-left:10%"> Sorry! No information for this exercise. </p>
+            </div>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

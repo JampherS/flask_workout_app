@@ -11,10 +11,10 @@ work = Blueprint('work', __name__)
 @login_required
 def search():
     s = request.form.get('search') if request.form.get('search') else None
-    search = s.lower()
-    if search is None:
-        return redirect(url_for('work.workouts'))
+    if not s:
+        return redirect(url_for('work.workouts', sort='name', scend=1))
 
+    search = s.lower()
     results = workoutsDB.db.workouts.find({"$text": {"$search": search}})
     if results.count() == 0:
         results = None
@@ -43,7 +43,10 @@ def add_post():
         flash('Exercise already exists')
         return redirect(url_for('work.add'))
 
-    workoutsDB.db.exercises.insert_one({"_id": str(id), "name": exercise_name, "notes": exercise_note})
+    if exercise_note:
+        workoutsDB.db.exercises.insert_one({"_id": str(id), "name": exercise_name, "notes": exercise_note})
+    else:
+        workoutsDB.db.exercises.insert_one({"_id": str(id), "name": exercise_name})
     return redirect(url_for('work.add'))
 
 @work.route('/delete/<exercise_name>')
@@ -64,8 +67,12 @@ def create():
 @login_required
 def create_post():
     workout_name = request.form.get('workout').lower() if request.form.get('workout') else None
-    difficulty = request.form.get('difficulty').lower() if request.form.get('difficulty') else None
-    length = request.form.get('length').lower() if request.form.get('length') else None
+    try:
+        difficulty = int(request.form.get('difficulty')) if request.form.get('difficulty') else None
+        length = float(request.form.get('length')) if request.form.get('length') else None
+    except:
+        flash('Please enter information in the correct format')
+        return redirect(url_for('work.create'))
 
     if not workout_name:
         flash('Please enter workout name')
@@ -79,6 +86,14 @@ def create_post():
         flash('Please enter length of workout')
         return redirect(url_for('work.create'))
 
+    if difficulty > 3 or difficulty < 1:
+        flash('Please enter a valid difficulty')
+        return redirect(url_for('work.create'))
+
+    if length <= 0:
+        flash('Please enter a valid length')
+        return redirect(url_for('work.create'))
+
 
     id = re.sub(r'\W+', '', workout_name)
 
@@ -87,7 +102,7 @@ def create_post():
         flash('Workout already exists')
         return redirect(url_for('work.create'))
 
-    workoutsDB.db.workouts.insert_one({"_id": str(id), "name": workout_name, "diff": difficulty, "length": length})
+    workoutsDB.db.workouts.insert_one({"_id": str(id), "name": workout_name, "diff": difficulty, "length": length, "uses": 0})
     return redirect(url_for('work.append', workout_name=workout_name))
 
 @work.route('/append/<workout_name>')
@@ -116,7 +131,7 @@ def append_post(workout_name, exercise_name):
     workouts = workoutsDB.db.workouts.aggregate([
         {"$match": {"_id": str(id)}},
         {"$project":
-             {"length":
+             {"size":
                   {"$size":
                        {"$ifNull" : ["$exercises", []]}
                    }
@@ -125,7 +140,7 @@ def append_post(workout_name, exercise_name):
     ])
     length = 0
     for workout in workouts:
-        length = workout['length']
+        length = workout['size']
 
     if order is None or order < 0:
         flash('Please enter a valid order')
@@ -152,7 +167,7 @@ def append_post(workout_name, exercise_name):
 @work.route('/remove/<workout_name>')
 @login_required
 def remove(workout_name):
-    id = re.sub(r'\W+', '', workout_name.lower())
+    id = re.sub(r'\W+', '', workout_name)
     workoutsDB.db.workouts.delete_one({"_id": str(id)})
     return redirect(url_for('work.create'))
 
@@ -175,21 +190,21 @@ def pop(workout_name, index):
 @work.route('/exe/<exercise_name>')
 @login_required
 def exercise(exercise_name):
-    id = re.sub(r'\W+', '', exercise_name.lower())
+    id = re.sub(r'\W+', '', exercise_name)
     exercise = workoutsDB.db.exercises.find_one({"_id": str(id)})
     return render_template('exercise.html', exercise=exercise, admin=is_admin(current_user.id))
 
 @work.route('/wor/<workout_name>')
 @login_required
 def workout(workout_name):
-    id = re.sub(r'\W+', '', workout_name.lower())
+    id = re.sub(r'\W+', '', workout_name)
     workout = workoutsDB.db.workouts.find_one({"_id": str(id)})
     return render_template('workout.html', workout=workout, admin=is_admin(current_user.id))
 
-@work.route('/workouts')
+@work.route('/workouts/<sort>/<scend>')
 @login_required
-def workouts():
-    workouts = workoutsDB.db.workouts.find({}).sort("name")
+def workouts(sort, scend):
+    workouts = workoutsDB.db.workouts.find({}).sort([(sort, int(scend))])
     return render_template('workouts.html', workouts=workouts, admin=is_admin(current_user.id))
 
 @work.route('/track/<workout_name>', methods=['POST'])
@@ -199,7 +214,7 @@ def track(workout_name):
         weight = int(request.form.get('weight')) if request.form.get('weight') else None
     except:
         flash("Please enter a valid response")
-        return redirect(url_for('work.workouts'))
+        return redirect(url_for('work.workouts', sort='name', scend=1))
 
     entry = workoutsDB.db.tracker.find_one({"_id": current_user.id,
                                             "history.date": datetime.today().strftime('%Y-%m-%d')})
@@ -207,14 +222,14 @@ def track(workout_name):
 
     if entry:
         flash("Can only log one weigh-in/workout per day")
-        return redirect(url_for('work.workouts'))
+        return redirect(url_for('work.workouts', sort='name', scend=1))
 
     if weight and weight > 0:
         workoutsDB.db.tracker.update({"_id": current_user.id},
                                     {"$push":
                                          {"history":
                                              {"$each": [{
-                                             "date": datetime.today().strftime('%Y-%m-%d'),
+                                             "date": datetime.today().strftime('%m-%d-%Y'),
                                              "weight": weight,
                                              "workout": workout_name
                                              }],
@@ -226,11 +241,16 @@ def track(workout_name):
                                      {"$push":
                                          {"history":
                                              {"$each": [{
-                                             "date": datetime.today().strftime('%Y-%m-%d'),
+                                             "date": datetime.today().strftime('%m-%d-%Y'),
                                              "workout": workout_name
                                              }],
                                              "$position": 0}
                                          }
                                      })
 
-    return redirect(url_for('work.workouts'))
+    id = re.sub(r'\W+', '', workout_name.lower())
+
+    workoutsDB.db.workouts.update({"_id": str(id)},
+                                  {"$inc": {"uses": 1}})
+
+    return redirect(url_for('work.workouts', sort='name', scend=1))

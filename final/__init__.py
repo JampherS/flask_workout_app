@@ -29,7 +29,7 @@ def create_app():
 			usersDB.session.commit()
 
 			workoutsDB.db.tracker.delete_many({})
-			workoutsDB.db.tracker.insert_one({"_id": admin.id, "sex": 'm', "height": 6, "DOB": "2000-05-25"})
+			workoutsDB.db.tracker.insert_one({"_id": admin.id, "sex": 'm', "height": 6, "DOB": "05-25-2000"})
 			workoutsDB.db.workouts.create_index([( "$**", "text" )])
 
 
