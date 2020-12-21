@@ -254,3 +254,20 @@ def track(workout_name):
                                   {"$inc": {"uses": 1}})
 
     return redirect(url_for('work.workouts', sort='name', scend=1))
+
+@work.route('/progress')
+@login_required
+def progress():
+	user = workoutsDB.db.tracker.find_one({'_id': current_user.id})
+
+	return render_template('progress.html',  admin=is_admin(current_user.id), user=user)
+
+@work.route('/stats')
+@login_required
+def stats():
+	user = workoutsDB.db.tracker.find_one({'_id': current_user.id})
+	workouts = workoutsDB.db.workouts.find({})
+	temp = []
+	for wo in workouts:
+		temp.append(wo)
+	return render_template('stats.html', admin=is_admin(current_user.id), workouts=temp)
